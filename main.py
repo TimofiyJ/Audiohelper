@@ -3,14 +3,13 @@ import autogen
 import requests
 import os
 import config
-from serpapi import GoogleSearch
 from dotenv import load_dotenv
-
+import gcalendar
 
 r = sr.Recognizer()
 
 
-def record_text():
+def record_text() -> str:
     while 1:
         try:
             with sr.Microphone() as source2:
@@ -32,7 +31,7 @@ def record_text():
 
 
 def output_text(text):
-    f = open("output.txt", "a")
+    f = open("output.txt", "a", encoding="utf-8")
     f.write(text)
     f.write("\n")
     f.close()
@@ -48,7 +47,7 @@ if __name__ == "__main__":
 
     manager_agent = autogen.UserProxyAgent(
         name="Manager_Agent",
-        system_message="You return information I give you and remember data you provided",
+        system_message="You are responsible for communication between user and other agents, also you execute code",
         llm_config={"config_list": [config_list]},
         human_input_mode="NEVER",
         code_execution_config={"work_dir": "results", "use_docker": False},
@@ -61,27 +60,79 @@ if __name__ == "__main__":
         system_message="You are responsible for answering personal questions that have predefined answers. \
             For example: Where are you? When you will be online?\
                 Also You are responsible for assigning meetings, reminders, tasks given a request and data about the future plans \
-            You need to ask for this information, such as time, place, title, summary if it is not provided",
+            You need to ask for this information, such as time, place, title, summary if it is not provided.\
+                If at the end of the message you receive TERMINATE AGENT CONVERSATION 200 write TERMINATE",
         llm_config={"config_list": [config_list]},
         code_execution_config=False,
         # max_consecutive_auto_reply=1,
         human_input_mode="NEVER",
     )
 
-    @manager_agent.register_for_execution()
-    @helper_agent.register_for_llm(description="Some description")
-    def create_task():
-        pass
+    def create_event() -> str:
+        """Tool for Helper Agent that creates event in Google Calendar
 
-    @manager_agent.register_for_execution()
-    @helper_agent.register_for_llm(description="Some description")
-    def get_answer():
-        pass
+        Returns:
+            str: information about new added event
+        """
+        result = gcalendar.create_event()
 
-    manager_agent.initiate_chat(helper_agent, message="Instance message")
+        with open("Event.txt", "w", encoding="utf-8") as file:
+            file.write(result["text"])
+
+        if result["code"] == 200:
+            return "TERMINATE AGENT CONVERSATION 200"
+    
+    def get_events() -> str:
+        """Tool for Helper Agent that gets events from Google Calendar
+
+        Returns:
+            str: information about existing events
+        """
+        result = gcalendar.get_events()
+
+        with open("Event.txt", "w", encoding="utf-8") as file:
+            file.write(result["text"])
+
+        if result["code"] == 200:
+            return "TERMINATE AGENT CONVERSATION 200"
+
+    def get_answer() -> str:
+        pass
+    
+    autogen.register_function(
+        create_event,
+        caller=helper_agent,
+        executor=manager_agent,
+        name="calendar_create_tool",
+        description="Tool that helps create new event in calendar",
+    )
+    autogen.register_function(
+        get_events,
+        caller=helper_agent,
+        executor=manager_agent,
+        name="calendar_read_tool",
+        description="Tool that helps get events from calendar",
+    )
+    autogen.register_function(
+        get_answer,
+        caller=helper_agent,
+        executor=manager_agent,
+        name="predefined_questions_tool",
+        description="Tool that helps get answers for predefined questions",
+    )
 
     while 1:
         text = record_text()
-        output_text(text)
+        question = "Question: " + text
+        output_text(question)
+
+        manager_agent.initiate_chat(helper_agent, message=text)
+
+        answer = ""
+        with open("Event.txt", "r", encoding="utf-8") as file:
+            answer = file.read()
+        print(answer)
+        answer = "Answer: " + answer
+        output_text(answer)
 
         print("Wrote text")

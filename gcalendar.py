@@ -12,6 +12,9 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 def get_events():
     creds = None
+    response = {}
+    response["code"] = 0
+
     result = ""
 
     if os.path.exists("token.json"):
@@ -52,15 +55,23 @@ def get_events():
             return result
         for event in events:
             start = event["start"].get("dateTime", event["start"].get("date"))
-            result = result + str(start, event["summary"]) + "\n"
+            result = result + " name: " + event["summary"] + " time: " + start + "\n"
 
     except HttpError as e:
-        result = result + "An error occurred: " + str(e)
-    return result
+        result = "An error occurred: " + str(e)
+        response["code"] = 500
+    
+    response["text"] = result
+    if response["code"] != 500:
+        response["code"] = 200
+    return response
 
 
 def create_event():
     creds = None
+    response = {}
+    response["code"] = 0
+    result = ""
 
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json")
@@ -97,11 +108,28 @@ def create_event():
         }
 
         event = service.events().insert(calendarId="primary", body=event).execute()
-        print(f"Event created {event.get('htmlLink')}")
+
+        start = event["start"].get("dateTime", event["start"].get("date"))
+        result = (
+            result
+            + "Event created"
+            + " name: "
+            + event["summary"]
+            + " time: "
+            + start
+            + " link: "
+            + event.get("htmlLink")
+        )
 
     except HttpError as e:
-        print("An error occurred: ", e)
+        result = "An error occurred: " + str(e)
+        response["code"] = 500
+    
+    response["text"] = result
+    if response["code"] != 500:
+        response["code"] = 200
+    return response
 
 
 if __name__ == "__main__":
-    create_event()
+    print(get_events())
