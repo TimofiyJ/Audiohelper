@@ -12,14 +12,13 @@ import gcalendar
 from datetime import datetime
 
 class GenerateAnswer(dspy.Signature):
-    """With the provided context answer the question about person.
-        You have to be gentle and nice"""
+    """With the provided context answer the question about person"""
 
     context = dspy.InputField(desc="Information about person.")
     question = dspy.InputField()
 
     answer = dspy.OutputField(
-        desc="Full answer and short with finished answer. Don't include reasoning and question in you answer"
+        desc="Don't include reasoning and context. Just short answer"
     )
 
 class RAG(dspy.Module):
@@ -32,13 +31,13 @@ class RAG(dspy.Module):
         self.retrieve = ChromadbRM(
             "rag",
             persist_directory=os.path.join("rag"),
-            embedding_function=self.huggingface_ef,
-            k=2,
+            embedding_function=self.huggingface_ef
         )
         self.generate_answer = dspy.ChainOfThought(GenerateAnswer)
 
     def forward(self, question):
         context = self.retrieve(question)
+        print("Context: ", context)
         prediction = self.generate_answer(context=context, question=question)
         return dspy.Prediction(context=context, answer=prediction.answer)
 
@@ -51,8 +50,8 @@ collection = client.get_or_create_collection(
 rag_model = dspy.GROQ(model=config.model, api_key=os.environ.get("GROQ_API_KEY"))
 dspy.settings.configure(lm=rag_model)
 rag = RAG()
-question = str(input("Question: "))
-print(question)
+
+question = "When you will be at home?"
 pred = rag(question)
 
 print(f"Question: {question}")

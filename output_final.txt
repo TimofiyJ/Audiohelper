@@ -1,0 +1,9 @@
+Question: hello what is your name
+Answer: Tymofii
+Question: when you will be in town
+Answer: Tomorrow
+Question: who is vizio
+Answer: Unknown
+Question: where did you go
+Answer: Holiday
+Question: can you please write an event in Google Calendar

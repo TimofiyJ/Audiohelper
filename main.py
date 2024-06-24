@@ -10,6 +10,8 @@ import config
 from dotenv import load_dotenv
 import gcalendar
 from datetime import datetime
+from gtts import gTTS
+
 
 load_dotenv(override=True)
 
@@ -40,20 +42,23 @@ def output_text(text):
     f.write(text)
     f.write("\n")
     f.close()
+    language = "en"
+    myobj = gTTS(text=text, lang=language, slow=False)
+    myobj.save('welcome.mp3')
+    os.system("start welcome.mp3")
     return
 
 
 if __name__ == "__main__":
 
     class GenerateAnswer(dspy.Signature):
-        """With the provided context answer the question about person.
-        You have to be gentle and nice"""
+        """With the provided context answer the question about person"""
 
         context = dspy.InputField(desc="Information about person.")
         question = dspy.InputField()
 
         answer = dspy.OutputField(
-            desc="Full answer. Don't include reasoning and question in you answer"
+            desc="Don't include reasoning and context. Just short answer"
         )
 
     class RAG(dspy.Module):
@@ -66,8 +71,7 @@ if __name__ == "__main__":
             self.retrieve = ChromadbRM(
                 "rag",
                 persist_directory=os.path.join("rag"),
-                embedding_function=self.huggingface_ef,
-                k=2,
+                embedding_function=self.huggingface_ef
             )
             self.generate_answer = dspy.ChainOfThought(GenerateAnswer)
 
@@ -236,16 +240,17 @@ if __name__ == "__main__":
         caller=helper_agent,
         executor=manager_agent,
         name="human_input_tool",
-        description="Tool that helps get debug errors \
-            You can use this tool if you have already used any tool and it failed",
+        description="Tool that helps get debug errors and get parameters for tools\
+            You can use this tool if you have already used any tool and it failed or you haven't been provided with parameters",
     )
-    autogen.register_function(
-        get_current_datetime,
-        caller=helper_agent,
-        executor=manager_agent,
-        name="current_time_tool",
-        description="Tool to use if you need to know current time ",
-    )
+    # autogen.register_function(
+    #     get_current_datetime,
+    #     caller=helper_agent,
+    #     executor=manager_agent,
+    #     name="get_current_time_tool",
+    #     description="Tool to use if you need to know current time.\
+    #          Use this tool only if you need to know what time is right now ",
+    # )
 
     while 1:
         text = record_text()
