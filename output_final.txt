@@ -1,9 +1,114 @@
-Question: hello what is your name
+Question: hello my name is Andrew what is your name
+Searching for the answer in predefined questions
 Answer: Tymofii
-Question: when you will be in town
+Question: what the fuck
+Searching for the answer in predefined questions
+Answer: No answer (the question is unclear or rhetorical)
+Question: hello my name is Andrew what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: hello my name is Andrew what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: nice can you please tell me all the events in the future from Google Calendar
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: Train to Кам'янець-Подільський time: 2024-06-29T22:50:00+03:00
+ name: Train to Самбір time: 2024-07-04T01:35:00+03:00
+ name: Faine Misto: Земля майбутніх легенд time: 2024-08-02T11:00:00+03:00
+
+Question: thank you could you please create an event in Google Calendar
+Bad Request
+Question: hello what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: red can you tell me please your future events from Google Calendar
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: Train to Кам'янець-Подільський time: 2024-06-29T22:50:00+03:00
+ name: Train to Самбір time: 2024-07-04T01:35:00+03:00
+ name: Faine Misto: Земля майбутніх легенд time: 2024-08-02T11:00:00+03:00
+
+Question: thank you could you please create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time and end time to create an event in Google Calendar
+Answer: Event created name: dinner time: 2023-03-07T06:00:00+02:00
+Question: my name is Andrew what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: okay could you tell me please when you will be at home
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: Train to Кам'янець-Подільський time: 2024-06-29T22:50:00+03:00
+ name: Train to Самбір time: 2024-07-04T01:35:00+03:00
+ name: Faine Misto: Земля майбутніх легенд time: 2024-08-02T11:00:00+03:00
+
+Question: when you will be at home
+Searching for the answer in predefined questions
 Answer: Tomorrow
-Question: who is vizio
-Answer: Unknown
-Question: where did you go
+Question: search dummy please where did you go
+Searching for the answer in predefined questions
 Answer: Holiday
-Question: can you please write an event in Google Calendar
+Question: can you please create an event in Google Calendar
+Please provide the necessary information to create an event in Google Calendar
+Searching for the answer in predefined questions
+Answer: None
+Question: can you create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Please provide a summary for the event
+Answer: Event created name: dinner time: 2024-06-26T08:00:00+03:00
+Question: start hello what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: great could you tell me please what are your nearest events
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: Train to Кам'янець-Подільський time: 2024-06-29T22:50:00+03:00
+ name: Train to Самбір time: 2024-07-04T01:35:00+03:00
+ name: Faine Misto: Земля майбутніх легенд time: 2024-08-02T11:00:00+03:00
+
+Question: can you create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Answer: Event created name: dinner time: 2024-06-27T05:00:00+03:00
+Question: set the basic representation of my project
+Question: how what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: hello what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: can you tell me upcoming events from Google Calendar
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: dinner time: 2024-06-27T05:00:00+03:00
+
+Question: can you create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Answer: Event created name: lunch time: 2024-06-26T09:10:00+03:00
+Question: miles that's it thanks for the attention by
+Question: hello what's your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: can you tell me your events from Google Calendar please
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: dinner time: 2024-06-27T05:00:00+03:00
+
+Question: can you create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Answer: Event created name: lunch time: 2024-06-26T11:00:00+03:00
+Question: create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Answer: Event created name: submarine lunch time: 2024-06-26T11:00:00+03:00
+Question: hello what is your name
+Searching for the answer in predefined questions
+Answer: Tymofii
+Question: can you get me a list of events from Google Calendar
+Answer:  name: Train to Львів time: 2024-06-25T20:12:00+03:00
+ name: dinner time: 2024-06-27T05:00:00+03:00
+
+Question: can you create an event in Google Calendar
+Please provide more information to create an event in Google Calendar
+Please provide summary, location, start time, and end time to create an event in Google Calendar
+Please provide start time and end time for the lunch event
+Answer: Event created name: lunch time: 2024-06-26T11:00:00+03:00
+Question: so that's it basically the presentation of my project thanks you for the attention by

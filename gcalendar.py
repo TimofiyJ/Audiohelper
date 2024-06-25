@@ -55,7 +55,7 @@ def get_events():
         if not events:
             result = "No uncoming events coming"
             return result
-        for event in events:
+        for event in events[:2]:
             start = event["start"].get("dateTime", event["start"].get("date"))
             result = result + " name: " + event["summary"] + " time: " + start + "\n"
 
@@ -71,7 +71,6 @@ def get_events():
 
 def create_event(summary: Annotated[str, "Summary of the event or how should it be called"],
                  location: Annotated[str, "Location of the event"],
-                 description: Annotated[str, "Description of the event"],
                  start: Annotated[str, "Start time of the event. Has to be in this format: \
                                   yyyy-mm-ddThh:mm:ss+02:00 \
                                   where y is for year, m for month, d for day, h for hour, m for minute \
@@ -79,16 +78,16 @@ def create_event(summary: Annotated[str, "Summary of the event or how should it 
                  end: Annotated[str, "End time of the event. Has to be in this format: \
                                   yyyy-mm-ddThh:mm:ss+02:00 \
                                   where y is for year, m for month, d for day, h for hour, m for minute \
-                                  s for second"],
-                 attendees: Annotated[str, "Email of attendee"]) -> dict:
+                                  s for second"]) -> dict:
     creds = None
     response = {}
     response["code"] = 0
     result = ""
 
     if summary == "" or start == "" or end =="":
-        result = "Not enough parameters provided"
+        result = "Please provide summary, start time and end time of the event"
         response["code"] = 500
+        return response
 
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json")
@@ -112,19 +111,16 @@ def create_event(summary: Annotated[str, "Summary of the event or how should it 
             "colorId": 6,
             "start": {
                 "dateTime": start,
-                "timeZone": "Europe/Vienna",
+                "timeZone": "Europe/Kiev",
             },
             "end": {
                 "dateTime": end,
-                "timeZone": "Europe/Vienna",
+                "timeZone": "Europe/Kiev",
             }
         }
 
         if location != "":
             event["location"] = location
-        
-        if description != "":
-            event["description"] = description
 
         event = service.events().insert(calendarId="primary", body=event).execute()
 

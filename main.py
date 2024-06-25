@@ -11,7 +11,16 @@ from dotenv import load_dotenv
 import gcalendar
 from datetime import datetime
 from gtts import gTTS
+import threading
+import pygame
+import time
+from pathlib import Path
+from io import BytesIO
 
+
+
+lock = threading.Lock()
+semaphore = threading.Semaphore(1)
 
 load_dotenv(override=True)
 
@@ -38,15 +47,36 @@ def record_text() -> str:
 
 
 def output_text(text):
-    f = open("output_final.txt", "a", encoding="utf-8")
-    f.write(text)
-    f.write("\n")
-    f.close()
-    language = "en"
-    myobj = gTTS(text=text, lang=language, slow=False)
-    myobj.save('welcome.mp3')
-    os.system("start welcome.mp3")
-    return
+    # Acquire the semaphore before accessing the shared resource
+    semaphore.acquire()
+    try:
+        # Append the text to the file
+        with open("output_final.txt", "a", encoding="utf-8") as f:
+            f.write(text)
+            f.write("\n")
+
+        # Convert the text to speech and save it to an in-memory bytes buffer
+        language = "en"
+        myobj = gTTS(text=text, lang=language, slow=False)
+        audio_fp = BytesIO()
+        myobj.write_to_fp(audio_fp)
+        audio_fp.seek(0)
+
+        # Initialize pygame mixer
+        pygame.mixer.init()
+
+        # Load the audio data from the in-memory bytes buffer
+        pygame.mixer.music.load(audio_fp, 'mp3')
+        pygame.mixer.music.play()
+
+        # Wait for the playback to finish
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+    finally:
+        # Always release the semaphore after accessing the shared resource
+        semaphore.release()
+
+
 
 
 if __name__ == "__main__":
@@ -122,7 +152,6 @@ if __name__ == "__main__":
     def create_event(
         summary: Annotated[str, "Summary of the event or how should it be called"],
         location: Annotated[str, "Location of the event"],
-        description: Annotated[str, "Description of the event"],
         start: Annotated[
             str,
             "Start time of the event. Has to be in this format: \
@@ -136,8 +165,7 @@ if __name__ == "__main__":
                                   yyyy-mm-ddThh:mm:ss+02:00 \
                                   where y is for year, m for month, d for day, h for hour, m for minute \
                                   s for second",
-        ],
-        attendees: Annotated[str, "Email of attendee"],
+        ]
     ) -> str:
         """Tool for Helper Agent that creates event in Google Calendar
 
@@ -147,10 +175,8 @@ if __name__ == "__main__":
         result = gcalendar.create_event(
             summary=summary,
             location=location,
-            description=description,
             start=start,
             end=end,
-            attendees=attendees,
         )
 
         with open("output_agents.txt", "w", encoding="utf-8") as file:
@@ -181,6 +207,10 @@ if __name__ == "__main__":
         Returns:
             str: answer about predefined question
         """
+        thread = threading.Thread(target=output_text, args=("Searching for the answer in predefined questions",))
+        thread.start()
+        thread.join()  
+
         rag = RAG()
 
         pred = rag(question)
@@ -192,12 +222,15 @@ if __name__ == "__main__":
 
         return "TERMINATE AGENT CONVERSATION 200"
 
-    def get_human_input(error: Annotated[str, "error that you are encoutering"]) -> str:
+    def get_human_input(error: Annotated[str, "error and suggestion for additional arguments to fix an issue."]) -> str:
         """Get additional clarification from human for function parameter
         Returns:
             str: additional clarification from human
         """
-        print("Question: ", question)
+        print("Error: ", error)
+        thread = threading.Thread(target=output_text, args=(error,))
+        thread.start()
+        thread.join()  
         text = record_text()
         return text
 
@@ -224,8 +257,8 @@ if __name__ == "__main__":
         caller=helper_agent,
         executor=manager_agent,
         name="calendar_read_tool",
-        description="Tool that helps to get list of future important events from calendar \
-            This should be used when a user wants to get future events from calendar",
+        description="Tool that helps to get list of future events from Google calendar \
+            This should be used when a user wants to get future events from Google calendar",
     )
     autogen.register_function(
         get_answer,
@@ -240,22 +273,23 @@ if __name__ == "__main__":
         caller=helper_agent,
         executor=manager_agent,
         name="human_input_tool",
-        description="Tool that helps get debug errors and get parameters for tools\
-            You can use this tool if you have already used any tool and it failed or you haven't been provided with parameters",
+        description="Tool that helps to additional arguments",
     )
-    # autogen.register_function(
-    #     get_current_datetime,
-    #     caller=helper_agent,
-    #     executor=manager_agent,
-    #     name="get_current_time_tool",
-    #     description="Tool to use if you need to know current time.\
-    #          Use this tool only if you need to know what time is right now ",
-    # )
+    autogen.register_function(
+        get_current_datetime,
+        caller=helper_agent,
+        executor=manager_agent,
+        name="get_current_time_tool",
+        description="Tool to use if you need to know current time.\
+             Use this tool only if you need to know what time is right now ",
+    )
 
     while 1:
         text = record_text()
         question = "Question: " + text
-        output_text(question)
+        thread = threading.Thread(target=output_text, args=(question,))
+        thread.start()
+        thread.join()  
 
         manager_agent.initiate_chat(helper_agent, message=text)
 
@@ -264,6 +298,8 @@ if __name__ == "__main__":
             answer = file.read()
         print(answer)
         answer = "Answer: " + answer
-        output_text(answer)
+        thread = threading.Thread(target=output_text, args=(answer,))
+        thread.start()
+        thread.join() 
 
         print("Wrote text")
